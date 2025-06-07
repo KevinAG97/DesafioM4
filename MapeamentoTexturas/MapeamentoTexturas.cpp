@@ -1,34 +1,28 @@
-// Bibliotecas padrão
 #include <iostream>
 #include <string>
 #include <vector>
 #include <stdio.h>
 #include <stdlib.h>
-
-// Biblioteca para carregar imagens
-#define STB_IMAGE_IMPLEMENTATION // DEFINA ANTES DE INCLUIR
-#include <stb_image.h>           // INCLUA AQUI
-
-// Bibliotecas OpenGL + manipulação de janela
+#define
+#include <stb_image.h>
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
-
-// Bibliotecas GLM (para matrizes e transformações)
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-// Tamanho da janela
 const GLint WIDTH = 800, HEIGHT = 600;
 
-// --- Classe Sprite ---
 class Sprite
 {
 public:
     GLuint textureID;
     glm::vec2 position;
-    glm::vec2 size; // Usado como escala para o quadrado 1x1
-    GLfloat rotate; // Em graus
+    glm::vec2 size;
+    GLfloat rotate;
 
     // Construtor
     Sprite(const char *texturePath, glm::vec2 pos, glm::vec2 sz, GLfloat rot = 0.0f)
@@ -40,7 +34,6 @@ public:
         }
     }
 
-    // Destrutor para liberar a textura
     ~Sprite()
     {
         if (textureID != 0)
@@ -49,44 +42,36 @@ public:
         }
     }
 
-    // Construtor de movimentação (Move constructor)
     Sprite(Sprite&& other) noexcept
         : textureID(other.textureID), position(std::move(other.position)),
           size(std::move(other.size)), rotate(other.rotate)
     {
-        // Transfere a posse da textura, o 'other' não deve mais liberá-la.
         other.textureID = 0;
     }
 
-    // Operador de atribuição de movimentação (Move assignment operator)
     Sprite& operator=(Sprite&& other) noexcept
     {
         if (this == &other) return *this;
 
-        // Libera o recurso atual (se houver)
         if (textureID != 0) {
             glDeleteTextures(1, &textureID);
         }
 
-        // Transfere os dados e a posse da textura
         textureID = other.textureID;
         position = std::move(other.position);
         size = std::move(other.size);
         rotate = other.rotate;
 
-        other.textureID = 0; // O 'other' não deve mais liberar a textura
+        other.textureID = 0;
         return *this;
     }
 
-    // Proibir cópia para evitar problemas de gerenciamento de textura duplicado
     Sprite(const Sprite&) = delete;
     Sprite& operator=(const Sprite&) = delete;
 
-
-    // Método para desenhar o sprite
     void draw(GLuint shaderProgramme, GLuint VAO)
     {
-        if (this->textureID == 0) return; // Não desenha se a textura não carregou ou foi movida
+        if (this->textureID == 0) return;
 
         glUseProgram(shaderProgramme);
 
@@ -115,8 +100,6 @@ private:
         unsigned char *image_data = stbi_load(file_name, &x, &y, &n, force_channels);
         if (!image_data)
         {
-            // A mensagem de erro já é impressa aqui, não precisa repetir no construtor.
-            // std::cerr << "ERRO ao carregar textura: " << file_name << std::endl; 
             std::cerr << "Motivo do stbi_load: " << stbi_failure_reason() << std::endl;
             return false;
         }
@@ -136,8 +119,6 @@ private:
         return true;
     }
 };
-// --- Fim da Classe Sprite ---
-
 
 int main()
 {
@@ -280,7 +261,6 @@ int main()
     sprites.push_back(std::move(cakeSprite));
     sprites.push_back(std::move(groundSprite));
 
-    // ---------------- Loop Principal ---------------- //
     while (!glfwWindowShouldClose(window))
     {
         glfwPollEvents();
